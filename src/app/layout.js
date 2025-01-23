@@ -4,9 +4,12 @@ import {
   MantineProvider,
   mantineHtmlProps,
 } from "@mantine/core";
+import { Notifications } from "@mantine/notifications";
+import { MainLayout } from "./components/MainLayout";
 import "@mantine/core/styles.css";
 import "@mantine/charts/styles.css";
 import "@mantine/dates/styles.css";
+import "@mantine/notifications/styles.css";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,7 +33,10 @@ export default function RootLayout({ children }) {
         <ColorSchemeScript />
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        <MantineProvider>{children}</MantineProvider>
+        <MantineProvider>
+          <Notifications />
+          <MainLayout>{children}</MainLayout>
+        </MantineProvider>
       </body>
     </html>
   );
