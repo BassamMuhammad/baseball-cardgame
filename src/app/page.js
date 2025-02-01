@@ -9,9 +9,12 @@ export default function Home() {
       {[
         { text: "Compare Teams or Players", url: "/comparison" },
         { text: "Trivia", url: "/trivia" },
+        { text: "Build Deck", url: "/build-deck" },
+        { text: "Card Game", url: "/card-game" },
       ].map(({ text, url }) => (
         <Card
           key={text}
+          style={{ cursor: "pointer" }}
           onClick={() => router.push(url)}
           shadow="sm"
           padding="lg"

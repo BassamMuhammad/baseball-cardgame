@@ -1,5 +1,4 @@
 "use client";
-import { MLB_BASE_URL } from "@/app/constants";
 import { Select } from "@mantine/core";
 import { useEffect, useState } from "react";
 

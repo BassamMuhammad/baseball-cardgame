@@ -114,17 +114,15 @@ export default function Page() {
             onChange={setComparisonSeason}
           />
         )}
-        {isTeamComparison === "team" && (
-          <SegmentedControl
-            value={comparisonGroup}
-            onChange={setComparisonGroup}
-            data={[
-              { value: "hitting", label: "Compare hitting stats" },
-              { value: "fielding", label: "Compare fielding stats" },
-              { value: "pitching", label: "Compare pitching stats" },
-            ]}
-          />
-        )}
+        <SegmentedControl
+          value={comparisonGroup}
+          onChange={setComparisonGroup}
+          data={[
+            { value: "hitting", label: "Compare hitting stats" },
+            { value: "fielding", label: "Compare fielding stats" },
+            { value: "pitching", label: "Compare pitching stats" },
+          ]}
+        />
       </Group>
       <Center my={10}>
         <Title>
