@@ -2,26 +2,57 @@ import {
   Badge,
   Card,
   CardSection,
+  Center,
   Divider,
   Group,
   Image,
+  Loader,
   Text,
 } from "@mantine/core";
+import { useEffect, useState } from "react";
 
-export const CardComp = ({ player, selected }) => {
-  return (
+export const CardComp = ({
+  player,
+  backside,
+  selected,
+  selectedText = "selected",
+}) => {
+  const [image, setImage] = useState();
+
+  useEffect(() => {
+    fetch(`https://midfield.mlbstatic.com/v1/people/${player.id}/spots/120`)
+      .then((imgData) => imgData.blob())
+      .then((img) => {
+        setImage(img);
+      });
+  }, []);
+
+  return backside ? (
+    <Image
+      h={300}
+      style={{ borderRadius: 10 }}
+      src="./baseball.webp"
+      alt="card backside"
+    />
+  ) : (
     <Card bg="yellow" shadow="md" padding="lg" radius="lg" withBorder>
       <CardSection bg="orange">
-        <Image
-          height={150}
-          fit="contain"
-          src={player.image}
-          alt={player.fullName}
-        />
+        {image ? (
+          <Image
+            height={150}
+            fit="contain"
+            src={URL.createObjectURL(image)}
+            alt={player.fullName}
+          />
+        ) : (
+          <Center>
+            <Loader />
+          </Center>
+        )}
       </CardSection>
       {selected && (
         <Badge color="red" pos="absolute" top={0} right={0}>
-          Selected
+          {selectedText}
         </Badge>
       )}
       <Text fw={800}>{player.fullName}</Text>
@@ -132,22 +163,45 @@ export const CardComp = ({ player, selected }) => {
       </Group>
       <Divider />
       <Text fw={600}>Fielding Stats</Text>
-      <Text>
-        Arm Strength:{" "}
-        {Math.max(
-          1,
-          Math.min(
-            10,
-            Math.round(
-              ((parseFloat(player.fieldingStats.assists) * 10) /
-                parseFloat(player.fieldingStats.gamesPlayed) +
-                (parseFloat(player.fieldingStats.rangeFactorPer9Inn) * 10) / 5 +
-                (10 - player.fieldingStats.throwingErrors / 10)) /
-                3
+      <Group wrap="wrap">
+        <Text>
+          Fielding Rating:{" "}
+          {Math.max(
+            1,
+            Math.min(
+              10,
+              Math.round(
+                (parseFloat(player.fieldingStats.fielding) * 10 +
+                  ((parseFloat(player.fieldingStats.assists) +
+                    parseFloat(player.fieldingStats.putOuts)) *
+                    10) /
+                    parseFloat(player.fieldingStats.chances) +
+                  (parseFloat(player.fieldingStats.doublePlays) * 10) /
+                    parseFloat(player.fieldingStats.gamesPlayed) -
+                  parseFloat(player.fieldingStats.errors) / 10) /
+                  3
+              )
             )
-          )
-        ) || 1}
-      </Text>
+          ) || 1}
+        </Text>
+        <Text>
+          Arm Strength:{" "}
+          {Math.max(
+            1,
+            Math.min(
+              10,
+              Math.round(
+                ((parseFloat(player.fieldingStats.assists) * 10) /
+                  parseFloat(player.fieldingStats.gamesPlayed) +
+                  (parseFloat(player.fieldingStats.rangeFactorPer9Inn) * 10) /
+                    5 +
+                  (10 - parseFloat(player.fieldingStats.throwingErrors) / 10)) /
+                  3
+              )
+            )
+          ) || 1}
+        </Text>
+      </Group>
       <Divider />
     </Card>
   );

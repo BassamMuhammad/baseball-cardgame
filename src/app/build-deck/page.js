@@ -1,19 +1,12 @@
 "use client";
-import {
-  Affix,
-  Button,
-  Container,
-  Group,
-  LoadingOverlay,
-  UnstyledButton,
-} from "@mantine/core";
+import { LoadingOverlay } from "@mantine/core";
 import { useEffect, useState } from "react";
 import { MLB_BASE_URL } from "../constants";
-import { CardComp } from "../components/CardComp";
 import { notifications } from "@mantine/notifications";
 import { useApp } from "../hooks/useApp";
 import { doc, getDoc, getFirestore, updateDoc } from "firebase/firestore";
 import { useUser } from "../hooks/useUser";
+import { CardChoosingComp } from "../components/CardChoosingComp";
 
 export default function Page() {
   const [players, setPlayers] = useState([]);
@@ -52,10 +45,8 @@ export default function Page() {
     const playerDataReqs = [];
     const playerIdsToTask = {};
     players.forEach((player) => {
-      playerIdsToTask[player.id] = ["image", "hitting", "fielding", "pitching"];
-      playerDataReqs.push(
-        fetch(`https://midfield.mlbstatic.com/v1/people/${player.id}/spots/120`)
-      );
+      playerIdsToTask[player.id] = ["hitting", "fielding", "pitching"];
+
       playerDataReqs.push(
         fetch(
           `${MLB_BASE_URL}/people/${player.id}/stats?stats=career&group=hitting`
@@ -82,16 +73,15 @@ export default function Page() {
           )
         )
           .then((data) => {
-            console.log(data);
             const playersWithStats = [];
             Object.keys(playerIdsToTask).forEach((p, i) => {
-              i *= 4;
+              i *= 3;
               playersWithStats.push({
-                ...players.find((player) => player.id == p),
-                image: URL.createObjectURL(data[i]),
-                hittingStats: data[i + 1]?.stats?.[0]?.splits?.[0]?.stat ?? [],
-                fieldingStats: data[i + 2]?.stats?.[0]?.splits?.[0]?.stat ?? [],
-                pitchingStats: data[i + 3]?.stats?.[0]?.splits?.[0]?.stat ?? [],
+                id: p,
+                fullName: players.find((player) => player.id == p)?.fullName,
+                hittingStats: data[i]?.stats?.[0]?.splits?.[0]?.stat ?? [],
+                fieldingStats: data[i + 1]?.stats?.[0]?.splits?.[0]?.stat ?? [],
+                pitchingStats: data[i + 2]?.stats?.[0]?.splits?.[0]?.stat ?? [],
               });
             });
             setPlayersWithStats(playersWithStats);
@@ -169,22 +159,13 @@ export default function Page() {
   if (loading) return <LoadingOverlay visible={loading} />;
 
   return (
-    <Container>
-      <Group wrap="wrap">
-        {playersWithStats.map((p, i) => (
-          <UnstyledButton key={i} onClick={() => updateDeck(p)}>
-            <CardComp
-              player={p}
-              selected={deck.find((d) => d.fullName === p.fullName)}
-            />
-          </UnstyledButton>
-        ))}
-      </Group>
-      <Affix position={{ bottom: 20, right: 20 }}>
-        <Button onClick={saveDeck} loading={loadingSavingDeck}>
-          Save Deck
-        </Button>
-      </Affix>
-    </Container>
+    <CardChoosingComp
+      cards={playersWithStats}
+      selected={(card) => deck.find((p) => p.id == card.id)}
+      saveText="Save Deck"
+      onCardSelected={updateDeck}
+      onSave={saveDeck}
+      loadingSave={loadingSavingDeck}
+    />
   );
 }

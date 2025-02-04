@@ -69,6 +69,7 @@ const AuthComp = ({ open, setOpen }) => {
         });
         await addDoc(doc(firestore, "users", userCredentials.user.uid), {
           points: 0,
+          deck: [],
         });
       } else {
         await signInWithEmailAndPassword(auth, email, password);
